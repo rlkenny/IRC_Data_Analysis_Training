@@ -1,0 +1,183 @@
+---
+title: "IRC Data Analysis Training 3"
+author: "Rachel Kenny"
+date: "02/01/2021"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Load packages
+```{r load_packages}
+
+# Load packages
+library(tidyverse) 
+library(here) 
+library(janitor)
+library(readxl)
+
+```
+
+### Load data
+```{r load_data}
+
+# Load oak data
+oak_data_raw <- read_csv(here("data", "Weir_Oak_Restoration_Data_winter19.csv"))
+oak_data <- clean_names(oak_data_raw)
+
+# Load agua chinon veg data
+ac_data_raw <- read_excel(here("data", "OCWR_AC_2019_Data.xlsx"))
+ac_data <- clean_names(ac_data_raw)
+
+hp_raw <- read_csv(here("data", "harry_potter_aggression_full.csv"))
+hp_data <- clean_names(hp_raw)
+
+```
+
+### Data wrangling
+```{r wrangle1}
+
+# dim() gives you dimensions
+dim(oak_data) 
+dim(ac_data) 
+dim(hp_data)
+
+# head() shows first 6 lines of data
+head(oak_data) 
+head(ac_data) 
+head(hp_data)
+
+# tail() shows last 6 lines of data
+tail(oak_data) 
+tail(ac_data) 
+tail(hp_data)
+
+# summary() shows the class and statistical summary of data
+summary(oak_data)
+summary(ac_data)
+summary(hp_data)
+
+View(oak_data)
+View(ac_data)
+View(hp_data)
+
+# To change the class use as.character or as.numeric
+oak_data$survival <- as.character(oak_data$survival)
+oak_data$survival <- as.numeric(oak_data$survival)
+
+# To check what class of data it is, use class()
+class(ac_data$transect)
+ac_data$transect <- as.character(ac_data$transect)
+class(ac_data$transect)
+
+```
+
+
+### Data visualization 1
+```{r viz}
+# histogram of oak seedling height
+hist(oak_data$height_cm)
+
+# basic ggplot scatter plot example
+plot1 <- ggplot(oak_data, aes(x=open_closed, y=height_cm)) + 
+  geom_point()
+
+plot1
+
+```
+
+
+### Data visualization 2
+```{r viz2}
+
+# Bar graphs - Example 1 using oak data
+
+# Side by side plots
+plot2 <- ggplot(oak_data, aes(location_uml, fill=survival)) +
+  geom_bar(position="dodge") + #this is where the code changes each time.
+  xlab("Location") +
+  ylab("Count") +
+  ggtitle("Survival of Oak Seedlings by Location") +
+  scale_x_discrete(expand=c(0.3,0)) +
+  scale_y_continuous(expand=c(0,0)) +
+  theme_minimal() +
+  theme(plot.title=element_text(face="bold", family = "serif"))
+
+plot2
+
+# Stacked plots
+plot3 <- ggplot(oak_data, aes(location_uml, fill=survival)) +
+  geom_bar(position="stack") + #this is where the code changes each time.
+  xlab("Location") +
+  ylab("Count") +
+  ggtitle("Survival of Oak Seedlings by Location") +
+  scale_x_discrete(expand=c(0.3,0)) +
+  scale_y_continuous(expand=c(0,0)) +
+  theme_minimal() +
+  theme(plot.title=element_text(face="bold", family = "serif"))
+
+plot3
+
+# Normalized stacked plots
+plot4 <- ggplot(oak_data, aes(location_uml, fill=survival)) +
+  geom_bar(position="fill") + #this is where the code changes each time.
+  xlab("Location") +
+  ylab("Count") +
+  ggtitle("Survival of Oak Seedlings by Location") +
+  scale_x_discrete(expand=c(0.3,0)) +
+  scale_y_continuous(expand=c(0,0)) +
+  theme_minimal() +
+  theme(plot.title=element_text(face="bold", family = "serif"))
+
+plot4
+
+
+## Bar graphs - Example 2 using agua chinon veg data
+
+# Side by side plots
+plot5 <- ggplot(ac_data, aes(polygon_id, fill=native_non_native)) +
+  geom_bar(position="dodge") + #this is where the code changes each time.
+  xlab("Polygon ID") +
+  ylab("Count") +
+  ggtitle("Native vs Non-native Plants by Polygon") +
+  scale_x_discrete(expand=c(0.1,0)) +
+  scale_y_continuous(expand=c(0,0)) +
+  theme_minimal() +
+  theme(plot.title=element_text(face="bold", family = "serif"), axis.text.x = element_text(angle = 90))
+
+plot5
+
+
+# Stacked plots
+plot6 <- ggplot(ac_data, aes(polygon_id, fill=native_non_native)) +
+  geom_bar(position="stack") + #this is where the code changes each time.
+  xlab("Polygon ID") +
+  ylab("Count") +
+  ggtitle("Native vs Non-native Plants by Polygon") +
+  scale_x_discrete(expand=c(0.1,0)) +
+  scale_y_continuous(expand=c(0,0)) +
+  theme_minimal() +
+  theme(plot.title=element_text(face="bold", family = "serif"), axis.text.x = element_text(angle = 90))
+
+plot6
+
+
+# Normalized stacked plots
+plot7 <- ggplot(ac_data, aes(polygon_id, fill=native_non_native)) +
+  geom_bar(position="fill") + #this is where the code changes each time.
+  xlab("Polygon ID") +
+  ylab("Count") +
+  ggtitle("Native vs Non-native Plants by Polygon") +
+  scale_x_discrete(expand=c(0.1,0)) +
+  scale_y_continuous(expand=c(0,0)) +
+  theme_minimal() +
+  theme(plot.title=element_text(face="bold", family = "serif"), axis.text.x = element_text(angle = 90))
+
+plot7
+
+```
+

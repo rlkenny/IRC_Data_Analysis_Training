@@ -1,0 +1,150 @@
+---
+title: "IRC Data Analysis Training 5"
+author: "Rachel Kenny"
+date: "02/22/2021"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Load packages
+```{r load_packages}
+
+# Load packages
+library(tidyverse) 
+library(here) 
+library(janitor)
+library(readxl)
+
+```
+
+### Load data
+```{r load_data}
+
+# Load oak data
+oak_data_raw <- read_csv(here("data", "Weir_Oak_Restoration_Data_winter19.csv"))
+oak_data <- clean_names(oak_data_raw)
+
+# Load old oak data
+oak_data_old_raw <- read_csv(here("data", "Weir_Oak_Restoration_Data_winter19_old.csv"))
+oak_data_old <- clean_names(oak_data_old_raw)
+
+# Load agua chinon veg data
+ac_data_raw <- read_excel(here("data", "OCWR_AC_2019_Data.xlsx"))
+ac_data <- clean_names(ac_data_raw)
+
+hp_raw <- read_csv(here("data", "harry_potter_aggression_full.csv"))
+hp_data <- clean_names(hp_raw)
+
+```
+
+## If else statements
+If else statements work similarly in r as they do in excel. There is a logical test given, then a value to be given if the logical statement is true and a value given if false.
+
+df$new_column <- ifelse(test, value if true, value if false)
+
+If else statements can also be nested within one another. The second if else statement is placed where the "value if false" goes.
+
+df$new_column <- ifelse(test, value if true, (ifelse(test2, value2 if true, value2 if false))
+
+
+## If else statements
+```{r ifelse}
+
+# Create a duplicate of our dataframes
+ac_data2 <- ac_data
+oak_data2 <- oak_data
+
+# Ifelse statement
+ac_data2$new_column <- ifelse(ac_data2$native_non_native == "Non-Native" | ac_data2$native_non_native == "No_Native", 0, 1)
+
+oak_data2$new_column <- ifelse(oak_data2$height_cm >= 5, "Tall", "Short")
+
+View(ac_data2)
+View(oak_data2)
+
+# Nested ifelse statement
+ac_data2$new_column2 <- ifelse(ac_data2$native_non_native == "Native", 1, (ifelse(ac_data2$native_non_native == "Non-Native", 2, 3)))
+
+oak_data2$new_column2 <- ifelse(oak_data2$height_cm >= 10, "Tall", (ifelse(oak_data2$height_cm > 0 & oak_data2$height_cm < 10, "Short", "No Germination")))
+
+View(ac_data2)
+View(oak_data2)
+
+```
+
+
+## Basic statistics
+```{r stats}
+
+# Mean - the average value of a distribution
+mean(oak_data$height_cm)
+
+# Median - the value in the middle of the distribution
+median(oak_data$height_cm)
+
+# Standard deviation - a measure of the amount of variation or dispersion of a set of values. A low standard deviation indicates that the values tend to be close to the mean of the set, while a high standard deviation indicates that the values are spread out over a wider range (wikipedia)
+sd(oak_data$height_cm)
+
+# Highest number
+max(oak_data$height_cm)
+
+# Lowest number
+min(oak_data$height_cm)
+
+# Summarize data
+summary(oak_data)
+summary(oak_data$height_cm)
+
+```
+
+
+## Basic statistics - troubleshooting
+```{r troubleshoot}
+
+# Mean
+mean(oak_data_old$height_cm)
+
+# If there are NA values, then introduce na.rm = TRUE to exclude those values from analysis
+mean(oak_data_old$height_cm, na.rm = TRUE)
+
+# Standard deviation
+sd(oak_data_old$height_cm, na.rm = TRUE)
+
+hist(oak_data_old$height_cm)
+
+# Highest number
+max(oak_data_old$height_cm, na.rm = TRUE)
+
+# Lowest number
+min(oak_data_old$height_cm, na.rm = TRUE)
+
+View(oak_data_old)
+
+# Identify problem rows
+which(is.na(oak_data_old$height_cm)) #819
+which(grepl(834, oak_data_old$height_cm)) #933
+
+# Edit data
+# Method 1
+oak_data_new <- oak_data_old[-c(819, 933), ] 
+summary(oak_data_new$height_cm)
+mean(oak_data_new$height_cm)
+
+hist(oak_data_new$height_cm)
+
+View(oak_data_old)
+# Method 2
+oak_data_new <- oak_data_old[ !(oak_data_old$short_id %in% c("U_C_33_1", "U_C_04_3")), ]
+View(oak_data_new)
+mean(oak_data_new$height_cm)
+
+# It is always safer to delete data according to some sort of identifying value than to delete by row number. Row numbers can change as data is filtered and altered and it is therefor not the safest
+
+```
+
+
